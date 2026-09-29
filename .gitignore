@@ -1,0 +1,12 @@
+.cache/
+__pycache__/
+_scratch/
+*.pyc
+extract_log.txt
+prices.csv
+# raw data + plaintext page: keep local only (public repo)
+dataset.json
+china.csv
+notices.csv
+rate-desk.html
+artifact-body.html

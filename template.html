@@ -1,0 +1,969 @@
+<title>Neptune Box Rate Desk</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --plane:#eaeef0; --surface:#ffffff; --surface-2:#f5f8f9; --surface-3:#eef3f5;
+  --ink:#0f1519; --ink-2:#47545e; --muted:#77858e;
+  --grid:#e4e9ec; --rule:#cdd6db; --ring:rgba(15,21,25,.10);
+  --accent:#1c5cab; --accent-ink:#ffffff; --accent-soft:#e7eff9;
+  --up:#c22e2e; --down:#046a38; --flat:#77858e;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
+  --q1:#e8f0fd; --q2:#cde2fb; --q3:#9ec5f4; --q4:#6da7ec; --q5:#3987e5; --q6:#256abf; --q7:#184f95;
+  --void-bg:#fdf0ee; --void-br:#eec3bc;
+  --shadow:0 1px 2px rgba(15,21,25,.05), 0 8px 24px -16px rgba(15,21,25,.28);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  color-scheme:dark;
+  --plane:#0b0f12; --surface:#151b20; --surface-2:#1b2228; --surface-3:#222a31;
+  --ink:#eef4f7; --ink-2:#aab7c0; --muted:#77858e;
+  --grid:#222a30; --rule:#2d373e; --ring:rgba(255,255,255,.10);
+  --accent:#6da7ec; --accent-ink:#0b0f12; --accent-soft:#1d2c3d;
+  --up:#f08a84; --down:#4cc46a; --flat:#77858e;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --q1:#16283d; --q2:#12365e; --q3:#104281; --q4:#184f95; --q5:#256abf; --q6:#3987e5; --q7:#6da7ec;
+  --void-bg:#2c1a18; --void-br:#5c302b;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --plane:#0b0f12; --surface:#151b20; --surface-2:#1b2228; --surface-3:#222a31;
+  --ink:#eef4f7; --ink-2:#aab7c0; --muted:#77858e;
+  --grid:#222a30; --rule:#2d373e; --ring:rgba(255,255,255,.10);
+  --accent:#6da7ec; --accent-ink:#0b0f12; --accent-soft:#1d2c3d;
+  --up:#f08a84; --down:#4cc46a; --flat:#77858e;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --q1:#16283d; --q2:#12365e; --q3:#104281; --q4:#184f95; --q5:#256abf; --q6:#3987e5; --q7:#6da7ec;
+  --void-bg:#2c1a18; --void-br:#5c302b;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-family:Archivo,system-ui,sans-serif;font-weight:700;letter-spacing:-.015em;text-wrap:balance}
+button,select,input{font:inherit;color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.eyebrow{font-family:Archivo,sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+
+/* masthead */
+.masthead{background:var(--surface);border-bottom:1px solid var(--rule)}
+.masthead .wrap{display:flex;flex-wrap:wrap;gap:18px 32px;align-items:flex-end;justify-content:space-between;padding-top:18px;padding-bottom:16px}
+.brand h1{font-size:26px;line-height:1.1}
+.brand .eyebrow{display:block;margin-bottom:5px}
+.vitals{display:flex;flex-wrap:wrap;gap:0}
+.vital{padding:0 16px;border-left:1px solid var(--grid)}
+.vital:first-child{padding-left:0;border-left:0}
+.vital dt{margin:0 0 2px;font-family:Archivo,sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.vital dd{margin:0;font-size:15px;font-weight:500}
+
+/* filter rail */
+.rail{position:sticky;top:0;z-index:20;background:var(--surface-2);border-bottom:1px solid var(--rule)}
+.rail .wrap{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end;padding:11px 22px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field > label{font-family:Archivo,sans-serif;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+select{background:var(--surface);border:1px solid var(--rule);border-radius:5px;padding:6px 9px;
+  font-size:13px;max-width:230px;cursor:pointer}
+select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.segmented{display:flex;border:1px solid var(--rule);border-radius:5px;overflow:hidden;background:var(--surface)}
+.segmented button{border:0;border-left:1px solid var(--rule);background:transparent;padding:6px 11px;font-size:12.5px;cursor:pointer;color:var(--ink-2);white-space:nowrap}
+.segmented button:first-child{border-left:0}
+.segmented button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:500}
+.rail .spacer{flex:1 1 auto}
+.numwrap{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--rule);
+  border-radius:5px;padding:0 9px 0 0}
+.numwrap input.numfield{width:62px;border:0;background:transparent;padding:6px 0 6px 9px;font-size:13px;
+  font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.numwrap input.numfield:focus{outline:none}
+.numwrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.numsuffix{color:var(--muted);font-size:12px}
+.chip.real{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+
+/* primary sections — each has its own scope and its own filter rail */
+.sections{background:var(--surface);border-bottom:1px solid var(--rule)}
+.sections .wrap{display:flex;gap:4px;padding:0 22px}
+.sections button{background:transparent;border:0;border-bottom:2px solid transparent;padding:12px 16px 10px;
+  font-family:Archivo,sans-serif;font-weight:700;font-size:13.5px;letter-spacing:.03em;
+  color:var(--muted);cursor:pointer;white-space:nowrap}
+.sections button:hover{color:var(--ink-2)}
+.sections button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+/* secondary view switch, inside the Route section only */
+.viewbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.viewbar .segmented button{padding:5px 14px;font-size:12.5px}
+
+main{padding:22px 0 40px}
+.panel[hidden]{display:none !important}
+.grid{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:8px;box-shadow:var(--shadow)}
+.card > header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:13px 16px 0}
+.card > header h2{font-size:13px;font-family:Archivo;letter-spacing:.02em}
+.card .body{padding:12px 16px 16px}
+.note{color:var(--muted);font-size:12px}
+
+/* lookup */
+.lookup{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start}
+.quote{padding:18px 20px 20px}
+.route-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:17px;font-weight:500;line-height:1.25}
+.route-line .zh{color:var(--ink-2);font-size:14px}
+.route-line .arrow{color:var(--accent);font-weight:600}
+.figure{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-top:12px}
+.figure .val{font-family:"IBM Plex Mono",monospace;font-size:46px;font-weight:500;line-height:1;letter-spacing:-.02em}
+.figure .val.small{font-size:26px;letter-spacing:0}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500;
+  border:1px solid var(--ring);background:var(--surface-2)}
+.chip.up{color:var(--up)} .chip.down{color:var(--down)} .chip.flat{color:var(--flat)}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:14px;padding-top:13px;border-top:1px solid var(--grid)}
+.meta{min-width:110px}
+.meta dt{font-family:Archivo,sans-serif;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.meta dd{margin:0;font-size:13.5px}
+.stale{background:var(--accent-soft);border:1px solid var(--ring);border-radius:6px;padding:8px 11px;margin-top:13px;font-size:12.5px}
+.notice{display:flex;gap:9px;align-items:flex-start;border:1px solid var(--ring);background:var(--surface-2);
+  border-radius:6px;padding:8px 11px;margin-top:10px;font-size:12.5px;line-height:1.45}
+.notice .ic{flex:none}
+.notice b{font-family:Archivo,sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:1px}
+.notice.void{background:var(--void-bg);border-color:var(--void-br)}
+.notice.void b{color:var(--up)}
+.notice.revised{background:var(--accent-soft)}
+.boxrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.boxbtn{flex:1 1 90px;text-align:left;background:var(--surface-2);border:1px solid var(--ring);border-radius:6px;padding:8px 10px;cursor:pointer}
+.boxbtn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.boxbtn .t{font-family:Archivo,sans-serif;font-size:10.5px;letter-spacing:.1em;color:var(--muted);font-weight:600}
+.boxbtn .v{font-family:"IBM Plex Mono",monospace;font-size:15px;font-variant-numeric:tabular-nums}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-family:Archivo,sans-serif;font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding:0 8px 6px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+td{padding:5px 8px 5px 0;border-bottom:1px solid var(--grid)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;padding-right:0}
+.scroll{overflow-x:auto}
+tbody tr.clickable{cursor:pointer}
+tbody tr.clickable:hover td{background:var(--surface-2)}
+
+/* chart */
+.chartwrap{position:relative}
+svg.chart{display:block;width:100%;height:auto;overflow:visible}
+.tt{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--rule);border-radius:6px;
+  box-shadow:var(--shadow);padding:8px 10px;font-size:12px;min-width:150px;z-index:5}
+.tt .d{font-family:Archivo,sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.tt .r{display:flex;align-items:center;gap:7px;justify-content:space-between;padding:1px 0}
+.tt .r .k{display:flex;align-items:center;gap:6px;min-width:0}
+.sw{width:9px;height:9px;border-radius:2px;flex:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px}
+.legend .item{display:flex;align-items:center;gap:7px;font-size:12.5px;background:var(--surface-2);
+  border:1px solid var(--ring);border-radius:999px;padding:3px 5px 3px 9px}
+.legend .item button{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:2px 4px;border-radius:50%}
+.legend .item button:hover{color:var(--up)}
+
+/* matrix */
+.matrix{font-size:12px;border-collapse:separate;border-spacing:2px}
+.matrix th{padding:0 4px 6px;border:0;text-align:center;font-size:9px;letter-spacing:.06em;vertical-align:bottom}
+.matrix th.rowh{text-align:left;font-size:11px;letter-spacing:0;text-transform:none;font-family:"IBM Plex Sans";
+  font-weight:500;color:var(--ink-2);padding-right:10px;white-space:nowrap;border:0}
+.matrix td{border:0;border-radius:3px;padding:5px 6px;text-align:right;font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;cursor:pointer;white-space:nowrap}
+.matrix td.na{color:var(--muted);background:var(--surface-2);cursor:default}
+.matrix td:hover{outline:2px solid var(--accent);outline-offset:-2px}
+.rampkey{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+.rampkey .steps{display:flex}
+.rampkey .steps i{width:26px;height:10px;display:block}
+.movers li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--grid);font-size:12.5px}
+.movers{list-style:none;margin:0;padding:0}
+.movers li:last-child{border-bottom:0}
+.movers .rt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.movers .dl{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+footer{border-top:1px solid var(--rule);background:var(--surface);padding:18px 0 26px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-between;font-size:12px;color:var(--muted)}
+.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:900px){ .lookup,.two,.three{grid-template-columns:minmax(0,1fr)} .figure .val{font-size:38px} }
+@media (prefers-reduced-motion:reduce){ *{transition:none !important;animation:none !important} }
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="brand">
+      <span class="eyebrow">Neptune Logistics · Equipment Control</span>
+      <h1>Box Rate Desk</h1>
+    </div>
+    <dl class="vitals" id="vitals"></dl>
+  </div>
+</header>
+
+<nav class="sections" role="tablist" aria-label="Sections">
+  <div class="wrap">
+    <button role="tab" type="button" data-section="route" aria-selected="true">Route Rates</button>
+    <button role="tab" type="button" data-section="corridor" aria-selected="false">Corridor</button>
+    <button role="tab" type="button" data-section="china" aria-selected="false">China Depots</button>
+  </div>
+</nav>
+
+<div class="rail">
+  <div class="wrap" id="rail"></div>
+</div>
+
+<main class="wrap">
+  <section class="panel" id="p-route">
+    <div class="viewbar">
+      <span class="eyebrow">View</span>
+      <div class="segmented" id="viewToggle">
+        <button type="button" data-view="lookup" aria-pressed="true">Lookup</button>
+        <button type="button" data-view="timeline" aria-pressed="false">Timeline</button>
+      </div>
+      <span class="note" id="viewNote"></span>
+    </div>
+    <div id="v-lookup">
+    <div class="grid lookup">
+      <div class="card">
+        <div class="quote" id="quoteCard"></div>
+      </div>
+      <div class="grid" style="align-content:start">
+        <div class="card">
+          <header><h2>Recent Quotes</h2><span class="note" id="sparkNote"></span></header>
+          <div class="body chartwrap" id="sparkWrap"></div>
+        </div>
+        <div class="card">
+          <header><h2 id="altTitle">Alternatives</h2></header>
+          <div class="body scroll" id="altBody"></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div id="v-timeline" hidden>
+    <div class="card">
+      <header>
+        <h2>Rate History <span id="realChip"></span></h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="chip" id="addRoute" type="button">+ Pin Current Route</button>
+          <button class="chip" id="tableToggle" type="button" aria-pressed="false">Table View</button>
+        </div>
+      </header>
+      <div class="body">
+        <div class="chartwrap" id="mainChartWrap"></div>
+        <div class="legend" id="legend"></div>
+        <p class="note" id="noticeKey" style="margin:8px 0 0"></p>
+        <div id="tableView" hidden class="scroll" style="margin-top:14px"></div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-corridor" hidden>
+    <div class="grid" style="grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)">
+      <div class="card">
+        <header><h2 id="matrixTitle">Corridor Matrix</h2><span class="note">On-hire down · Off-hire across · Click a cell to load it</span></header>
+        <div class="body"><div class="scroll" id="matrixBody"></div><div class="rampkey" id="rampKey"></div></div>
+      </div>
+      <div class="card">
+        <header><h2>Week-on-Week Movers</h2></header>
+        <div class="body" id="moversBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-china" hidden>
+    <div class="grid two">
+      <div class="card">
+        <header><h2>Purchase Price History</h2><span class="note" id="chinaNote"></span></header>
+        <div class="body"><div class="chartwrap" id="chinaChartWrap"></div><div class="legend" id="chinaLegend"></div></div>
+      </div>
+      <div class="card">
+        <header><h2 id="chinaTableTitle">Depot Prices</h2></header>
+        <div class="body scroll" id="chinaBody"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Built from <b id="fCount">0</b> weekly quotation emails from Jeff Shi, Equipment Control · one-way rental, USD per container</span>
+    <span id="fGen"></span>
+  </div>
+</footer>
+
+<style>
+.matrix td.q1{background:var(--q1);color:var(--qi1)} .matrix td.q2{background:var(--q2);color:var(--qi2)}
+.matrix td.q3{background:var(--q3);color:var(--qi3)} .matrix td.q4{background:var(--q4);color:var(--qi4)}
+.matrix td.q5{background:var(--q5);color:var(--qi5)} .matrix td.q6{background:var(--q6);color:var(--qi6)}
+.matrix td.q7{background:var(--q7);color:var(--qi7)}
+:root{--qi1:#0f1519;--qi2:#0f1519;--qi3:#0f1519;--qi4:#0f1519;--qi5:#ffffff;--qi6:#ffffff;--qi7:#ffffff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--qi1:#eef4f7;--qi2:#eef4f7;--qi3:#eef4f7;--qi4:#eef4f7;--qi5:#eef4f7;--qi6:#0b0f12;--qi7:#0b0f12}}
+:root[data-theme="dark"]{--qi1:#eef4f7;--qi2:#eef4f7;--qi3:#eef4f7;--qi4:#eef4f7;--qi5:#eef4f7;--qi6:#0b0f12;--qi7:#0b0f12}
+</style>
+
+<script>
+"use strict";
+const D = __DATA__;
+const NP=-3, NO=0, CBC=-1, OTH=-2;
+const SLOTS=['var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)','var(--s6)','var(--s7)','var(--s8)'];
+const nd = D.dates.length;
+const TS = D.dates.map(s=>Date.parse(s));
+const _cache=new Map();
+const $ = s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- indexes ---------- */
+const RMAP=new Map(), byCorr=[];
+D.corr.forEach((_,i)=>byCorr[i]={origins:new Map(), dates:new Set(), routes:[]});
+for(const r of D.routes){
+  const [c,o,d,b,g]=r;
+  RMAP.set(c+'|'+o+'|'+d+'|'+b+'|'+g, r);
+  const B=byCorr[c]; B.routes.push(r);
+  if(!B.origins.has(o)) B.origins.set(o,new Map());
+  const dm=B.origins.get(o);
+  if(!dm.has(d)) dm.set(d,new Map());
+  const gm=dm.get(d);
+  if(!gm.has(g)) gm.set(g,new Set());
+  gm.get(g).add(b);
+  for(let i=0;i<r[6].length;i+=2) if(r[6][i+1]!==NP) B.dates.add(r[6][i]);
+}
+byCorr.forEach(B=>{ B.dateList=[...B.dates].sort((a,b)=>a-b); });
+/* a corridor publishes on the union of dates where any of its routes changed; fill in
+   the weeks between changes where the corridor was still publishing */
+byCorr.forEach((B,c)=>{
+  const pub=new Set();
+  for(const r of B.routes){ const s=expand(r); for(let i=0;i<nd;i++) if(s[i]!==NP) pub.add(i); }
+  B.pub=[...pub].sort((a,b)=>a-b);
+});
+const chinaPub=(()=>{const p=new Set(); for(const r of D.china.rows){const s=expandPts(r[2]); for(let i=0;i<nd;i++) if(s[i]!==NP)p.add(i);} return [...p].sort((a,b)=>a-b);})();
+
+function expandPts(pts){
+  const a=new Array(nd); let v=NP,k=0;
+  for(let i=0;i<nd;i++){ while(k<pts.length && pts[k]===i){ v=pts[k+1]; k+=2; } a[i]=v; }
+  return a;
+}
+function expand(r){
+  let a=_cache.get(r); if(!a){ a=expandPts(r[6]); _cache.set(r,a); } return a;
+}
+const LN = i => D.loc[i][0], LZ = i => D.loc[i][1];
+const fmtUSD = v => 'US$'+Math.round(v).toLocaleString('en-US');
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtDate = i => {const d=new Date(TS[i]); return d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear();};
+const fmtShort = i => {const d=new Date(TS[i]); return d.getDate()+' '+MON[d.getMonth()];};
+const fmtMonth = i => {const d=new Date(TS[i]); return MON[d.getMonth()]+" '"+String(d.getFullYear()).slice(2);};
+const NOTICES = D.notices||[];
+const NOTICE_META={void:['\u26a0','Rates Withdrawn Mid-week'],revised:['\u21bb','Revised Mid-week'],note:['\u2139','Notice']};
+function noticesFor(c, di){ return NOTICES.filter(n=>n[0]===di && n[1]===c); }
+function noticeHTML(list){
+  return list.map(n=>{ const [ic,lab]=NOTICE_META[n[2]]||NOTICE_META.note;
+    return `<div class="notice ${esc(n[2])}"><span class="ic">${ic}</span><span><b>${esc(lab)}</b>${esc(n[3])}</span></div>`;
+  }).join('');
+}
+function stateLabel(v){ return v===CBC?'case by case': v===NO?'not offered': v===NP?'no quote that week':'—'; }
+
+/* ---------- state ---------- */
+const S={section:'route', view:'lookup', c:0, o:null, d:null, b:null, g:'', di:nd-1, pins:[], usedSlots:new Set(),
+         range:'all', table:false, cBox:null, cPins:[], cDi:nd-1,
+         /* inflation adjustment — display only, never applied to Lookup */
+         real:false, rate:3.0, baseYear:null};
+
+function corrOrigins(c){ return [...byCorr[c].origins.keys()].sort((a,b)=>LN(a).localeCompare(LN(b))); }
+function corrDests(c,o){ const m=byCorr[c].origins.get(o); return m?[...m.keys()].sort((a,b)=>LN(a).localeCompare(LN(b))):[]; }
+function grades(c,o,d){ const m=byCorr[c].origins.get(o); const g=m&&m.get(d); return g?[...g.keys()]:['']; }
+function boxes(c,o,d,g){ const m=byCorr[c].origins.get(o); const gm=m&&m.get(d); const s=gm&&gm.get(g);
+  const order=['20GP','40GP','40HQ','45HQ']; return s?[...s].sort((a,b)=>order.indexOf(D.box[a])-order.indexOf(D.box[b])):[]; }
+function route(){ return RMAP.get(S.c+'|'+S.o+'|'+S.d+'|'+S.b+'|'+S.g); }
+function routeKey(c,o,d,b,g){ return c+'|'+o+'|'+d+'|'+b+'|'+g; }
+function routeLabel(c,o,d,b,g){ return LN(o)+' → '+LN(d)+' · '+D.box[b]+(D.grade[g]?' '+D.grade[g]:''); }
+
+/* pick a sensible opening route: latest week, busiest corridor */
+function initState(){
+  const c=D.corr.indexOf('Russia')>=0?D.corr.indexOf('Russia'):0;
+  S.c=c;
+  const prefO=['SHANGHAI','SHENZHEN','NINGBO','HUANGPU'], prefD=['MOSCOW','ALMATY','DUISBURG'];
+  const os=corrOrigins(c);
+  const pick=(pref,list)=>{ for(const n of pref){ const i=list.find(x=>LN(x)===n); if(i!=null) return i; } return list[0]; };
+  S.di=byCorr[c].pub[byCorr[c].pub.length-1];
+  S.o=pick(prefO,os);
+  let ds=corrDests(c,S.o); S.d=pick(prefD,ds);
+  S.g=grades(c,S.o,S.d)[0];
+  let bs=boxes(c,S.o,S.d,S.g); S.b=bs.find(i=>D.box[i]==='40HQ') ?? bs[bs.length-1];
+  /* if that opens on a non-price, step through the preferred origins for a priced one */
+  const priced=()=>{ const r=RMAP.get(routeKey(S.c,S.o,S.d,S.b,S.g)); return r && quoteAt(expand(r),S.di,byCorr[S.c].pub).v>0; };
+  if(!priced()){
+    outer: for(const on of prefO.concat(os.map(LN))){
+      const oi=os.find(x=>LN(x)===on); if(oi==null) continue;
+      const dl=corrDests(c,oi);
+      for(const dn of prefD.concat(dl.map(LN))){
+        const dj=dl.find(x=>LN(x)===dn); if(dj==null) continue;
+        const g0=grades(c,oi,dj)[0], bl=boxes(c,oi,dj,g0);
+        const b0=bl.find(i=>D.box[i]==='40HQ') ?? bl[bl.length-1];
+        const r=RMAP.get(routeKey(c,oi,dj,b0,g0));
+        if(r && quoteAt(expand(r),S.di,byCorr[c].pub).v>0){ S.o=oi; S.d=dj; S.g=g0; S.b=b0; break outer; }
+      }
+    }
+  }
+  S.cBox=D.china.box.indexOf('40HQ')>=0?D.china.box.indexOf('40HQ'):0;
+  S.cDi=chinaPub[chinaPub.length-1];
+  addPin();
+  D.china.defaults.forEach(li=>addChinaPin(li));
+}
+
+function nextSlot(used){ for(let i=0;i<SLOTS.length;i++) if(!used.has(i)) return i; return null; }
+function addPin(){
+  const k=routeKey(S.c,S.o,S.d,S.b,S.g);
+  if(S.pins.some(p=>p.key===k)) return;
+  if(S.pins.length>=8) return;
+  const used=new Set(S.pins.map(p=>p.slot));
+  S.pins.push({key:k, slot:nextSlot(used), c:S.c,o:S.o,d:S.d,b:S.b,g:S.g});
+}
+function addChinaPin(li){
+  if(S.cPins.some(p=>p.li===li) || S.cPins.length>=8) return;
+  const used=new Set(S.cPins.map(p=>p.slot));
+  S.cPins.push({li, slot:nextSlot(used)});
+}
+
+/* ---------- rail ---------- */
+function field(label, node){ const f=el('div','field'); f.appendChild(el('label',null,label)); f.appendChild(node); return f; }
+function select(options, value, onChange){
+  const s=el('select');
+  for(const o of options){
+    if(o.group){ const g=el('optgroup'); g.label=o.group; o.items.forEach(it=>{const op=new Option(it.label,it.value); g.appendChild(op);}); s.appendChild(g); }
+    else s.appendChild(new Option(o.label,o.value));
+  }
+  s.value=String(value);
+  s.addEventListener('change',e=>onChange(e.target.value));
+  return s;
+}
+function numInput(value, onChange, opts){
+  const i=el('input'); i.type='number'; i.value=value;
+  i.step=(opts&&opts.step)||'0.1'; i.className='numfield';
+  if(opts&&opts.suffix) i.setAttribute('aria-label',opts.suffix);
+  /* 'change' not 'input': the rail is rebuilt on render, so committing on
+     blur/Enter keeps focus from being yanked mid-typing */
+  i.addEventListener('change',e=>onChange(parseFloat(e.target.value)));
+  const w=el('div','numwrap'); w.appendChild(i);
+  if(opts&&opts.suffix) w.appendChild(el('span','numsuffix',esc(opts.suffix)));
+  return w;
+}
+function segmented(items, active, onPick){
+  const w=el('div','segmented');
+  items.forEach(it=>{ const b=el('button',null,esc(it.label)); b.type='button';
+    b.setAttribute('aria-pressed', String(it.value===active));
+    b.addEventListener('click',()=>onPick(it.value)); w.appendChild(b); });
+  return w;
+}
+function renderRail(){
+  const rail=$('#rail'); rail.textContent='';
+  if(S.section==='china'){
+    rail.appendChild(field('Box Type', segmented(D.china.box.map((b,i)=>({label:b,value:i})), S.cBox, v=>{S.cBox=+v; render();})));
+    rail.appendChild(field('Week', select(chinaPub.slice().reverse().map(i=>({label:fmtDate(i),value:i})), S.cDi, v=>{S.cDi=+v; render();})));
+    realControls(rail);
+    rail.appendChild(el('div','spacer'));
+    rail.appendChild(field('Depots on Chart', el('span','note', S.cPins.length+' pinned · click a row to add')));
+    return;
+  }
+  rail.appendChild(field('Corridor', segmented(D.corr.map((c,i)=>({label:c,value:i})), S.c, v=>{ setCorr(+v); render(); })));
+  if(S.section!=='corridor'){
+    rail.appendChild(field('On-hire (Pick-up)', select(corrOrigins(S.c).map(i=>({label:LN(i)+' · '+LZ(i),value:i})), S.o, v=>{ setOrigin(+v); render(); })));
+    rail.appendChild(field('Off-hire (Drop-off)', select(destOptions(S.c,S.o), S.d, v=>{ setDest(+v); render(); })));
+  }
+  const bs = S.section==='corridor' ? matrixBoxes(S.c) : boxes(S.c,S.o,S.d,S.g);
+  rail.appendChild(field('Box Type', segmented(bs.map(i=>({label:D.box[i],value:i})), S.b, v=>{S.b=+v; render();})));
+  const gs = S.section==='corridor' ? [...new Set(byCorr[S.c].routes.map(r=>r[4]))] : grades(S.c,S.o,S.d);
+  if(gs.length>1) rail.appendChild(field('Condition', segmented(gs.map(i=>({label:D.grade[i]||'Standard',value:i})), S.g, v=>{S.g=+v; render();})));
+  rail.appendChild(field('Week', select(byCorr[S.c].pub.slice().reverse().map(i=>({label:fmtDate(i),value:i})), S.di, v=>{S.di=+v; render();})));
+  if(S.section==='route' && S.view==='timeline'){
+    rail.appendChild(el('div','spacer'));
+    rail.appendChild(field('Range', segmented([{label:'All',value:'all'},{label:'2026',value:'y'},{label:'Last 12',value:'12'}], S.range, v=>{S.range=v; render();})));
+    realControls(rail);
+  }
+}
+function realControls(rail){
+  rail.appendChild(field('Prices', segmented([{label:'Nominal',value:0},{label:'Real',value:1}],
+    S.real?1:0, v=>{ S.real=!!+v; render(); })));
+  if(!S.real) return;
+  rail.appendChild(field('Your Assumed Rate',
+    numInput(S.rate, v=>{ S.rate=isFinite(v)?v:0; render(); }, {suffix:'% / yr'})));
+  rail.appendChild(field('Base Year',
+    select(YEARS.map(y=>({label:y,value:y})), S.baseYear, v=>{ S.baseYear=v; render(); })));
+  rail.appendChild(field('Anchored On', el('span','note', fmtDate(baseIdx()))));
+}
+function destOptions(c,o){
+  const ds=corrDests(c,o), groups=new Map();
+  for(const d of ds){ const sub=D.subOf[d]!=null?D.sub[D.subOf[d]]:''; const k=sub||''; if(!groups.has(k))groups.set(k,[]); groups.get(k).push({label:LN(d)+' · '+LZ(d),value:d}); }
+  if(groups.size<=1) return ds.map(d=>({label:LN(d)+' · '+LZ(d),value:d}));
+  return [...groups.entries()].sort().map(([g,items])=>({group:g||'Other',items}));
+}
+function matrixBoxes(c){ const s=new Set(byCorr[c].routes.map(r=>r[3])); const order=['20GP','40GP','40HQ','45HQ'];
+  return [...s].sort((a,b)=>order.indexOf(D.box[a])-order.indexOf(D.box[b])); }
+function setCorr(c){ S.c=c; const os=corrOrigins(c); if(!os.includes(S.o)) S.o=os[0];
+  const ds=corrDests(c,S.o); if(!ds.includes(S.d)) S.d=ds[0];
+  const gs=grades(c,S.o,S.d); if(!gs.includes(S.g)) S.g=gs[0];
+  const bs=boxes(c,S.o,S.d,S.g); if(!bs.includes(S.b)) S.b=bs[bs.length-1];
+  if(!byCorr[c].pub.includes(S.di)){ const p=byCorr[c].pub; S.di=p.reduce((a,i)=>Math.abs(i-S.di)<Math.abs(a-S.di)?i:a,p[0]); } }
+function setOrigin(o){ S.o=o; const ds=corrDests(S.c,o); if(!ds.includes(S.d)) S.d=ds[0]; setDest(S.d); }
+function setDest(d){ S.d=d; const gs=grades(S.c,S.o,d); if(!gs.includes(S.g)) S.g=gs[0];
+  const bs=boxes(S.c,S.o,S.d,S.g); if(!bs.includes(S.b)) S.b=bs[bs.length-1]; }
+</script>
+<script>
+"use strict";
+/* ---------- inflation adjustment ----------
+   real = nominal * (1+r)^(years from that week to the base anchor).
+   Fractional years from the real dates: adjusting in whole calendar steps would
+   put fake jumps on 1 January that read as rate moves. */
+const YEARS=[...new Set(D.dates.map(d=>d.slice(0,4)))].sort();
+function anchorIdx(year){          /* last quoted week of that year */
+  for(let i=nd-1;i>=0;i--) if(D.dates[i].slice(0,4)===year) return i;
+  return nd-1;
+}
+if(!S.baseYear) S.baseYear=YEARS[YEARS.length-1];
+function baseIdx(){ return anchorIdx(S.baseYear); }
+function realFactor(i){
+  if(!S.real) return 1;
+  const r=(isFinite(S.rate)?S.rate:0)/100;
+  return Math.pow(1+r, (TS[baseIdx()]-TS[i])/(365.25*864e5));
+}
+function adjArr(arr){ return S.real ? arr.map((v,i)=> v>0 ? v*realFactor(i) : v) : arr; }
+function realLabel(){
+  return S.real ? 'Real terms · '+(isFinite(S.rate)?S.rate:0)+'%/yr · '+fmtDate(baseIdx())+' money' : '';
+}
+function axisNote(){ return S.real ? 'US$ · '+fmtDate(baseIdx())+' money' : ''; }
+
+/* ---------- line chart ---------- */
+const SVGNS='http://www.w3.org/2000/svg';
+function sv(t,a){const e=document.createElementNS(SVGNS,t); for(const k in a) e.setAttribute(k,a[k]); return e;}
+function ticks(min,max,target){
+  const span=max-min||1, raw=span/target, p=Math.pow(10,Math.floor(Math.log10(raw))), n=raw/p;
+  const step=(n<1.5?1:n<3?2:n<7?5:10)*p;
+  const out=[]; for(let v=Math.ceil(min/step)*step; v<=max+1e-9; v+=step) out.push(Math.round(v*1e6)/1e6);
+  return out;
+}
+function lineChart(mount, series, opts){
+  opts=opts||{};
+  mount.textContent='';
+  const idx=opts.idx;
+  if(!idx.length || !series.length){ mount.appendChild(el('p','note','No quotes on file for this selection.')); return; }
+  const W=Math.max(mount.clientWidth||0, 320), compact=!!opts.compact;
+  const H=compact?128:320;
+  const m={l:compact?44:56, r:compact?10:(opts.labels?96:16), t:compact?10:16, b:compact?18:26};
+  const t0=TS[idx[0]], t1=TS[idx[idx.length-1]], tspan=Math.max(t1-t0,1);
+  const ghosts=opts.ghosts||[];
+  let maxV=0, minV=Infinity;
+  series.concat(ghosts).forEach(s=>idx.forEach(i=>{const v=s.arr[i]; if(v>0){ if(v>maxV)maxV=v; if(v<minV)minV=v; }}));
+  if(!maxV){ mount.appendChild(el('p','note','No priced quotes in this window — the selection was “case by case” or not offered.')); return; }
+  const spread=maxV-minV;
+  const yMin=(spread/maxV<0.5)?Math.max(0,minV-Math.max(spread*0.45,maxV*0.05)):0;
+  const yMax=maxV+Math.max(spread*0.18,maxV*0.05);
+  const X=t=>m.l+(t-t0)/tspan*(W-m.l-m.r), Y=v=>H-m.b-((v-yMin)/(yMax-yMin))*(H-m.t-m.b);
+  const svg=sv('svg',{class:'chart',viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:'img'});
+  svg.setAttribute('aria-label', opts.aria||'Rate history chart');
+  /* gap bands */
+  for(let k=1;k<idx.length;k++){ const a=TS[idx[k-1]], b=TS[idx[k]];
+    if(b-a > 45*864e5){
+      svg.appendChild(sv('rect',{x:X(a),y:m.t,width:X(b)-X(a),height:H-m.t-m.b,fill:'var(--surface-3)'}));
+      if(!compact){ const tx=sv('text',{x:(X(a)+X(b))/2,y:m.t+13,'text-anchor':'middle','font-size':10,fill:'var(--muted)',
+        'font-family':'Archivo, sans-serif','letter-spacing':'0.08em'}); tx.textContent='NO EMAILS ON FILE'; svg.appendChild(tx); }
+    } }
+  /* grid + y axis */
+  ticks(yMin,yMax,compact?3:5).forEach(v=>{
+    svg.appendChild(sv('line',{x1:m.l,x2:W-m.r,y1:Y(v),y2:Y(v),stroke:'var(--grid)','stroke-width':1}));
+    const t=sv('text',{x:m.l-8,y:Y(v)+3.5,'text-anchor':'end','font-size':compact?9.5:10.5,fill:'var(--muted)',
+      'font-family':'"IBM Plex Mono", monospace'}); t.textContent=v?fmtUSD(v):'US$0'; svg.appendChild(t);
+  });
+  svg.appendChild(sv('line',{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b,stroke:'var(--rule)','stroke-width':1}));
+  if(opts.axisNote){
+    const an=sv('text',{x:m.l,y:m.t-5,'font-size':compact?9:10,fill:'var(--muted)',
+      'font-family':'Archivo, sans-serif','letter-spacing':'.07em'});
+    an.textContent=opts.axisNote.toUpperCase(); svg.appendChild(an);
+  }
+  /* x ticks */
+  const last=idx.length-1, minGap=compact?90:74;
+  let picks=[];
+  if(compact){ picks=last>0?[[idx[0],0],[idx[last],last]]:[[idx[0],0]]; }
+  else{ let lx=-1e9;
+    idx.forEach((i,k)=>{ const x=X(TS[i]); if(k===last || x-lx>=minGap){ picks.push([i,k]); lx=x; } });
+    if(picks.length>1 && X(TS[picks[picks.length-1][0]])-X(TS[picks[picks.length-2][0]])<minGap)
+      picks.splice(picks.length-2,1);
+  }
+  picks.forEach(([i,k])=>{
+    const t=sv('text',{x:X(TS[i]),y:H-m.b+13,'text-anchor':k===last?'end':(k===0?'start':'middle'),
+      'font-size':compact?9.5:10.5,fill:'var(--muted)','font-family':'"IBM Plex Mono", monospace'});
+    t.textContent = compact?fmtShort(i):fmtMonth(i);
+    svg.appendChild(t); });
+  /* nominal series behind the adjusted ones */
+  ghosts.forEach(g=>{
+    let seg=[], prevT=null;
+    const flush=()=>{ if(seg.length>1) svg.appendChild(sv('polyline',{points:seg.map(p=>p[0]+','+p[1]).join(' '),
+        fill:'none',stroke:g.color,'stroke-width':1.5,opacity:.3,'stroke-linejoin':'round'})); seg=[]; };
+    idx.forEach(i=>{ const v=g.arr[i];
+      if(!(v>0)){ flush(); prevT=null; return; }
+      if(prevT!==null && TS[i]-prevT > 21*864e5) flush();
+      seg.push([X(TS[i]),Y(v)]); prevT=TS[i]; });
+    flush();
+  });
+
+  /* series */
+  const ends=[];
+  series.forEach(s=>{
+    let seg=[];
+    const flush=()=>{ if(seg.length>1) svg.appendChild(sv('polyline',{points:seg.map(p=>p[0]+','+p[1]).join(' '),
+        fill:'none',stroke:s.color,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+      else if(seg.length===1) svg.appendChild(sv('circle',{cx:seg[0][0],cy:seg[0][1],r:3,fill:s.color}));
+      seg=[]; };
+    let prevT=null;
+    idx.forEach(i=>{ const v=s.arr[i];
+      if(!(v>0)){ flush(); prevT=null; return; }
+      if(prevT!==null && TS[i]-prevT > 21*864e5) flush();
+      seg.push([X(TS[i]),Y(v)]); prevT=TS[i];
+    });
+    flush();
+    for(let k=idx.length-1;k>=0;k--){ const v=s.arr[idx[k]]; if(v>0){ ends.push({s,i:idx[k],v}); break; } }
+  });
+  ends.forEach(e=>svg.appendChild(sv('circle',{cx:X(TS[e.i]),cy:Y(e.v),r:compact?3:4.5,
+      fill:e.s.color,stroke:'var(--surface)','stroke-width':2})));
+  if(opts.labels && series.length<=4){
+    const labs=ends.map(e=>({e,y:Y(e.v)})).sort((a,b)=>a.y-b.y);
+    for(let k=1;k<labs.length;k++) if(labs[k].y-labs[k-1].y<14) labs[k].y=labs[k-1].y+14;
+    labs.forEach(L=>{
+      const t=sv('text',{x:X(TS[L.e.i])+9,y:L.y+4,'font-size':11,fill:'var(--ink)','font-family':'"IBM Plex Mono", monospace'});
+      t.textContent=fmtUSD(L.e.v); svg.appendChild(t);
+    });
+  }
+  /* mid-week notice markers */
+  const noteCorrs=[...new Set((opts.corrs)||[])];
+  const noteAt=new Map();
+  if(noteCorrs.length) idx.forEach(i=>{
+    const ns=NOTICES.filter(n=>n[0]===i && noteCorrs.includes(n[1]));
+    if(ns.length) noteAt.set(i, ns);
+  });
+  noteAt.forEach((ns,i)=>{
+    const x=X(TS[i]), void_=ns.some(n=>n[2]==='void'), y=m.t;
+    svg.appendChild(sv('path',{d:`M${x-4.5} ${y-1} L${x+4.5} ${y-1} L${x} ${y+6.5} Z`,
+      fill:void_?'var(--up)':'var(--muted)'}));
+    svg.appendChild(sv('line',{x1:x,x2:x,y1:y+6,y2:H-m.b,stroke:void_?'var(--up)':'var(--muted)','stroke-width':1,opacity:.22}));
+  });
+
+  /* hover */
+  const cross=sv('line',{x1:0,x2:0,y1:m.t,y2:H-m.b,stroke:'var(--rule)','stroke-width':1,opacity:0});
+  svg.appendChild(cross);
+  const dots=sv('g',{}); svg.appendChild(dots);
+  const hit=sv('rect',{x:m.l,y:m.t,width:Math.max(1,W-m.l-m.r),height:H-m.t-m.b,fill:'transparent'});
+  svg.appendChild(hit);
+  const tip=el('div','tt'); tip.style.display='none'; mount.appendChild(tip);
+  const move=ev=>{
+    const r=svg.getBoundingClientRect(), px=(ev.clientX-r.left)*(W/r.width);
+    let best=idx[0], bd=Infinity;
+    idx.forEach(i=>{ const d=Math.abs(X(TS[i])-px); if(d<bd){bd=d;best=i;} });
+    cross.setAttribute('x1',X(TS[best])); cross.setAttribute('x2',X(TS[best])); cross.setAttribute('opacity',1);
+    dots.textContent='';
+    let rows='';
+    series.forEach(s=>{ const v=s.arr[best];
+      if(v>0) dots.appendChild(sv('circle',{cx:X(TS[best]),cy:Y(v),r:4,fill:s.color,stroke:'var(--surface)','stroke-width':2}));
+      const nom = s.nominal ? s.nominal[best] : null;
+      rows+=`<div class="r"><span class="k"><i class="sw" style="background:${s.color}"></i>${esc(s.label)}</span>`+
+            `<b class="mono">${v>0?fmtUSD(v):esc(stateLabel(v))}`+
+            `${(S.real&&v>0&&nom>0)?` <span class="note">(${fmtUSD(nom)} nom.)</span>`:''}</b></div>`;
+    });
+    const ns=noteAt.get(best);
+    if(ns) rows+=`<div class="r" style="margin-top:4px;padding-top:4px;border-top:1px solid var(--grid)">`+
+      `<span class="k" style="color:${ns.some(n=>n[2]==='void')?'var(--up)':'var(--muted)'}">`+
+      `${ns.some(n=>n[2]==='void')?'\u26a0 withdrawn mid-week':'\u21bb revised mid-week'}</span></div>`;
+    tip.innerHTML=`<div class="d">${esc(fmtDate(best))}${S.real?' · real terms':''}</div>${rows}`;
+    tip.style.display='block';
+    const tw=tip.offsetWidth, left=Math.min(Math.max(0,(X(TS[best])/W)*r.width-tw/2), r.width-tw);
+    tip.style.left=left+'px'; tip.style.top='0px';
+  };
+  hit.addEventListener('mousemove',move);
+  hit.addEventListener('mouseleave',()=>{ tip.style.display='none'; cross.setAttribute('opacity',0); dots.textContent=''; });
+  mount.insertBefore(svg, tip);
+}
+
+/* ---------- lookup panel ---------- */
+function quoteAt(arr, di, pub){
+  if(arr[di]!==NP) return {v:arr[di], at:di, stale:false};
+  for(let k=pub.length-1;k>=0;k--){ const i=pub[k]; if(i<=di && arr[i]!==NP) return {v:arr[i], at:i, stale:true}; }
+  return {v:NP, at:-1, stale:false};
+}
+function prevPub(pub, di){ for(let k=pub.length-1;k>=0;k--) if(pub[k]<di) return pub[k]; return -1; }
+function deltaChip(cur, prev){
+  if(!(cur>0)||!(prev>0)) return '';
+  const d=cur-prev, pct=d/prev*100;
+  if(!d) return '<span class="chip flat">■ unchanged w/w</span>';
+  const cls=d>0?'up':'down', ar=d>0?'▲':'▼';
+  return `<span class="chip ${cls}">${ar} ${d>0?'+':'−'}${fmtUSD(Math.abs(d)).slice(3)} (${d>0?'+':'−'}${Math.abs(pct).toFixed(1)}%) w/w</span>`;
+}
+function renderLookup(){
+  const r=route(), pub=byCorr[S.c].pub, card=$('#quoteCard');
+  if(!r){ card.innerHTML='<p class="note">No quote on file for this combination.</p>'; $('#altBody').textContent=''; $('#sparkWrap').textContent=''; return; }
+  const arr=expand(r), q=quoteAt(arr,S.di,pub), pi=prevPub(pub,q.at), prev=pi>=0?arr[pi]:NP;
+  const stock = D.stock[r[7]]||'';
+  card.innerHTML =
+    `<div class="eyebrow">${esc(D.corr[S.c])}${D.subOf[S.d]!=null?' · '+esc(D.sub[D.subOf[S.d]]):''} · one-way rental</div>
+     <div class="route-line" style="margin-top:6px">
+       <span>${esc(LN(S.o))} <span class="zh">${esc(LZ(S.o))}</span></span>
+       <span class="arrow">→</span>
+       <span>${esc(LN(S.d))} <span class="zh">${esc(LZ(S.d))}</span></span>
+     </div>
+     <div class="figure">
+       <span class="val${q.v>0?'':' small'}">${q.v>0?esc(fmtUSD(q.v)):esc(stateLabel(q.v))}</span>
+       ${q.v>0?deltaChip(q.v,prev):''}
+     </div>
+     <div class="meta-row">
+       <div class="meta"><dt>Box</dt><dd>${esc(D.box[S.b])}${D.grade[S.g]?' · '+esc(D.grade[S.g]):''}</dd></div>
+       <div class="meta"><dt>Quoted</dt><dd>${q.at>=0?esc(fmtDate(q.at)):'—'}</dd></div>
+       <div class="meta" style="flex:1"><dt>Availability</dt><dd>${esc(stock||'—')}</dd></div>
+     </div>
+     ${q.stale?`<div class="stale"><b>Not in the ${esc(fmtDate(S.di))} list.</b> Showing the last published quote, from ${esc(fmtDate(q.at))}.</div>`:''}
+     ${noticeHTML(noticesFor(S.c,q.at>=0?q.at:S.di))}
+     <div class="boxrow" id="boxrow"></div>`;
+  const br=$('#boxrow');
+  boxes(S.c,S.o,S.d,S.g).forEach(bi=>{
+    const rr=RMAP.get(routeKey(S.c,S.o,S.d,bi,S.g)); if(!rr) return;
+    const qq=quoteAt(expand(rr),S.di,pub);
+    const b=el('button','boxbtn'); b.type='button'; b.setAttribute('aria-pressed',String(bi===S.b));
+    b.innerHTML=`<div class="t">${esc(D.box[bi])}</div><div class="v">${qq.v>0?esc(fmtUSD(qq.v)):esc(stateLabel(qq.v))}</div>`;
+    b.addEventListener('click',()=>{S.b=bi; render();});
+    br.appendChild(b);
+  });
+  /* sparkline */
+  const cutoff=TS[S.di]-260*864e5;
+  let vis=pub.filter(i=>i<=S.di && TS[i]>=cutoff);
+  if(vis.length<4) vis=pub.filter(i=>i<=S.di).slice(-10);
+  $('#sparkNote').textContent = vis.length?fmtShort(vis[0])+' → '+fmtShort(vis[vis.length-1]):'';
+  lineChart($('#sparkWrap'), [{label:routeLabel(S.c,S.o,S.d,S.b,S.g), color:'var(--s1)', arr}], {idx:vis, compact:true, aria:'Recent quotes for the selected route'});
+  /* alternatives */
+  const alt=el('div');
+  alt.appendChild(altTable('Other Drop-off Points from '+LN(S.o), corrDests(S.c,S.o).filter(d=>d!==S.d).map(d=>{
+    const rr=RMAP.get(routeKey(S.c,S.o,d,S.b,S.g)); if(!rr) return null;
+    const qq=quoteAt(expand(rr),S.di,pub); return qq.v>0?{label:LN(d), zh:LZ(d), v:qq.v, go:()=>{S.d=d; setDest(d);}}:null;
+  }).filter(Boolean)));
+  alt.appendChild(altTable('Other Pick-up Points to '+LN(S.d), corrOrigins(S.c).filter(o=>o!==S.o).map(o=>{
+    const rr=RMAP.get(routeKey(S.c,o,S.d,S.b,S.g)); if(!rr) return null;
+    const qq=quoteAt(expand(rr),S.di,pub); return qq.v>0?{label:LN(o), zh:LZ(o), v:qq.v, go:()=>{S.o=o; setOrigin(o);}}:null;
+  }).filter(Boolean)));
+  $('#altTitle').textContent='Alternatives · '+D.box[S.b];
+  const ab=$('#altBody'); ab.textContent=''; ab.appendChild(alt);
+}
+function altTable(title, rows){
+  const w=el('div'); w.style.marginBottom='14px';
+  w.appendChild(el('div','eyebrow',esc(title)));
+  if(!rows.length){ w.appendChild(el('p','note','No other priced quotes this week.')); return w; }
+  rows.sort((a,b)=>a.v-b.v);
+  const t=el('table'); t.innerHTML='<thead><tr><th>Location</th><th class="num">Rate</th><th class="num">vs Current</th></tr></thead>';
+  const tb=el('tbody'); const cur=(()=>{const rr=route(); return rr?quoteAt(expand(rr),S.di,byCorr[S.c].pub).v:0;})();
+  rows.slice(0,8).forEach(r=>{
+    const tr=el('tr','clickable');
+    const d=cur>0?r.v-cur:0;
+    tr.innerHTML=`<td>${esc(r.label)} <span class="note">${esc(r.zh)}</span></td><td class="num">${esc(fmtUSD(r.v))}</td>`+
+      `<td class="num" style="color:${d>0?'var(--up)':d<0?'var(--down)':'var(--muted)'}">${cur>0?(d>0?'+':d<0?'−':'')+(d?fmtUSD(Math.abs(d)).slice(3):'0'):'—'}</td>`;
+    tr.addEventListener('click',()=>{ r.go(); render(); });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); w.appendChild(t);
+  if(rows.length>8) w.appendChild(el('p','note','Showing the 8 cheapest of '+rows.length+'.'));
+  return w;
+}
+</script>
+<script>
+"use strict";
+/* ---------- timeline ---------- */
+function pinSeries(){
+  return S.pins.map(p=>{ const r=RMAP.get(p.key);
+    return r?{label:routeLabel(p.c,p.o,p.d,p.b,p.g), color:SLOTS[p.slot], arr:expand(r), pin:p}:null; }).filter(Boolean);
+}
+function visibleIdx(series){
+  let idx=[]; for(let i=0;i<nd;i++) if(series.some(s=>s.arr[i]!==NP)) idx.push(i);
+  if(S.range==='y'){ const y=new Date(TS[idx[idx.length-1]]).getFullYear(); idx=idx.filter(i=>new Date(TS[i]).getFullYear()===y); }
+  else if(S.range==='12') idx=idx.slice(-12);
+  return idx;
+}
+function renderTimeline(){
+  const nominal=pinSeries(), idx=visibleIdx(nominal);
+  const series=nominal.map(s=>Object.assign({}, s, {arr:adjArr(s.arr), nominal:s.arr}));
+  lineChart($('#mainChartWrap'), series, {idx, labels:true, corrs:S.pins.map(p=>p.c),
+            ghosts: S.real ? nominal.map(s=>({color:s.color, arr:s.arr})) : [],
+            axisNote: axisNote(),
+            aria:'Container rental rate history by route'+(S.real?', adjusted for inflation':'')});
+  $('#realChip').innerHTML = S.real
+    ? '<span class="chip real">'+esc(realLabel())+'</span>' : '';
+  const lg=$('#legend'); lg.textContent='';
+  series.forEach(s=>{
+    const it=el('div','item');
+    it.innerHTML=`<i class="sw" style="background:${s.color}"></i><span>${esc(s.label)}</span>`;
+    if(series.length>1){ const b=el('button',null,'×'); b.type='button'; b.title='Remove from chart';
+      b.setAttribute('aria-label','Remove '+s.label+' from chart');
+      b.addEventListener('click',()=>{ S.pins=S.pins.filter(p=>p!==s.pin); render(); }); it.appendChild(b); }
+    lg.appendChild(it);
+  });
+  const shown=[...new Set(S.pins.map(p=>p.c))];
+  const nCount=NOTICES.filter(n=>shown.includes(n[1]) && idx.includes(n[0]));
+  $('#noticeKey').innerHTML = nCount.length
+    ? '\u25b2 marks a week Jeff followed up mid-week — red = rates withdrawn, grey = revised. '
+      + nCount.length + ' in this window; the wording is on the Lookup view.'
+    : '';
+  const tv=$('#tableView'); tv.hidden=!S.table;
+  $('#tableToggle').setAttribute('aria-pressed',String(S.table));
+  if(S.table){
+    const t=el('table');
+    t.innerHTML='<thead><tr><th>Week</th>'+series.map(s=>'<th class="num">'+esc(s.label)+
+      (S.real?' <span class="note">(real)</span>':'')+'</th>').join('')+'</tr></thead>';
+    const tb=el('tbody');
+    idx.slice().reverse().forEach(i=>{
+      tb.appendChild(el('tr',null,'<td class="mono">'+esc(fmtDate(i))+'</td>'+
+        series.map(s=>{const v=s.arr[i]; return '<td class="num">'+(v>0?esc(fmtUSD(v)):'<span class="note">'+esc(stateLabel(v))+'</span>')+'</td>';}).join('')));
+    });
+    t.appendChild(tb); tv.textContent='';
+    if(S.real) tv.appendChild(el('p','note','All figures in '+fmtDate(baseIdx())+
+      ' money at '+(isFinite(S.rate)?S.rate:0)+'%/yr. Jeff\'s quoted figures are on the Lookup view.'));
+    tv.appendChild(t);
+  }
+}
+
+/* ---------- matrix ---------- */
+function renderMatrix(){
+  const pub=byCorr[S.c].pub, origins=corrOrigins(S.c);
+  const dests=[...new Set(byCorr[S.c].routes.filter(r=>r[3]===S.b&&r[4]===S.g).map(r=>r[2]))]
+    .sort((a,b)=>{ const sa=D.subOf[a]??99, sb=D.subOf[b]??99; return sa-sb || LN(a).localeCompare(LN(b)); });
+  const cells=[], vals=[];
+  origins.forEach(o=>{ const row=[];
+    dests.forEach(d=>{ const r=RMAP.get(routeKey(S.c,o,d,S.b,S.g));
+      if(!r){ row.push(null); return; }
+      const q=quoteAt(expand(r),S.di,pub); row.push(q);
+      if(q.v>0) vals.push(q.v); });
+    cells.push(row); });
+  $('#matrixTitle').textContent=D.corr[S.c]+' · '+D.box[S.b]+(D.grade[S.g]?' '+D.grade[S.g]:'')+' · '+fmtDate(S.di);
+  const body=$('#matrixBody'); body.textContent='';
+  if(!vals.length){ body.appendChild(el('p','note','No priced quotes for this box type this week.')); $('#rampKey').textContent=''; $('#moversBody').textContent=''; return; }
+  vals.sort((a,b)=>a-b);
+  const q=p=>vals[Math.min(vals.length-1,Math.floor(p*vals.length))];
+  const bounds=[q(1/7),q(2/7),q(3/7),q(4/7),q(5/7),q(6/7)];
+  const bin=v=>{ let b=1; for(const x of bounds){ if(v>x) b++; } return Math.min(b,7); };
+  const t=el('table','matrix');
+  let head='<thead><tr><th class="rowh"></th>';
+  dests.forEach(d=>{ head+='<th><div style="writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap">'+esc(LN(d))+'</div></th>'; });
+  t.innerHTML=head+'</tr></thead>';
+  const tb=el('tbody');
+  origins.forEach((o,ri)=>{
+    const tr=el('tr'); tr.appendChild(el('th','rowh',esc(LN(o))));
+    dests.forEach((d,ci)=>{
+      const c=cells[ri][ci];
+      if(!c || c.v===NP){ const td=el('td','na','·'); td.title='no quote on file'; tr.appendChild(td); return; }
+      if(!(c.v>0)){ const td=el('td','na',c.v===CBC?'c/c':'—'); td.title=stateLabel(c.v); tr.appendChild(td); return; }
+      const td=el('td','q'+bin(c.v), fmtUSD(c.v).replace('US$',''));
+      td.title=LN(o)+' → '+LN(d)+' · '+fmtUSD(c.v)+(c.stale?' (from '+fmtDate(c.at)+')':'');
+      td.addEventListener('click',()=>{ S.o=o; S.d=d; setDest(d); S.section='route'; S.view='lookup'; render(); });
+      tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  const mn=noticesFor(S.c,S.di);
+  if(mn.length) body.insertAdjacentHTML('beforeend', noticeHTML(mn).replace(/margin-top:10px/g,''));
+  body.appendChild(t);
+  $('#rampKey').innerHTML='<span>USD, low to high</span><span class="steps">'+
+    [1,2,3,4,5,6,7].map(i=>'<i style="background:var(--q'+i+')"></i>').join('')+'</span>'+
+    '<span class="mono">'+fmtUSD(vals[0])+' – '+fmtUSD(vals[vals.length-1])+'</span>'+
+    '<span>· c/c = case by case · — = not offered · · = not listed</span>';
+  /* movers */
+  const pi=prevPub(pub,S.di), mv=[];
+  if(pi>=0){
+    byCorr[S.c].routes.forEach(r=>{ if(r[3]!==S.b||r[4]!==S.g) return;
+      const a=expand(r); const cur=a[S.di], prv=a[pi];
+      if(cur>0&&prv>0&&cur!==prv) mv.push({label:LN(r[1])+' → '+LN(r[2]), d:cur-prv, pct:(cur-prv)/prv*100, cur});
+    });
+  }
+  const mb=$('#moversBody'); mb.textContent='';
+  if(!mv.length){ mb.appendChild(el('p','note', pi<0?'No earlier week to compare with.':'No changes against '+fmtDate(pi)+'.')); return; }
+  mv.sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));
+  mb.appendChild(el('p','note','Against '+fmtDate(pi)+' · '+mv.length+' rates moved'));
+  const ul=el('ul','movers');
+  mv.slice(0,12).forEach(m=>{
+    const cls=m.d>0?'up':'down';
+    ul.appendChild(el('li',null,`<span class="rt">${esc(m.label)}</span>`+
+      `<span class="dl" style="color:var(--${cls})">${m.d>0?'▲ +':'▼ −'}${fmtUSD(Math.abs(m.d)).slice(3)} <span class="note">(${esc(fmtUSD(m.cur))})</span></span>`));
+  });
+  mb.appendChild(ul);
+}
+
+/* ---------- china ---------- */
+function chinaRow(li,bi){ return D.china.rows.find(r=>r[0]===li&&r[1]===bi); }
+function renderChina(){
+  const bi=S.cBox, di=S.cDi, pi=prevPub(chinaPub,di);
+  const rows=D.china.rows.filter(r=>r[1]===bi);
+  $('#chinaTableTitle').textContent='Depot Prices · '+D.china.box[bi]+' · '+fmtDate(di);
+  const t=el('table');
+  t.innerHTML='<thead><tr><th>Depot</th><th class="num">Purchase</th><th class="num">w/w</th><th class="num">Retail</th><th class="num">Margin</th></tr></thead>';
+  const tb=el('tbody');
+  rows.map(r=>({r, p:expandPts(r[2]), q:expandPts(r[3])}))
+      .sort((a,b)=>(b.p[di]>0?b.p[di]:0)-(a.p[di]>0?a.p[di]:0))
+      .forEach(({r,p,q})=>{
+    const li=r[0], cur=p[di], prv=pi>=0?p[pi]:NP, ret=q[di], d=(cur>0&&prv>0)?cur-prv:0;
+    const tr=el('tr','clickable');
+    tr.innerHTML=`<td>${esc(D.china.loc[li][0])} <span class="note">${esc(D.china.loc[li][1])}</span></td>`+
+      `<td class="num">${cur>0?esc(fmtUSD(cur)):'<span class="note">—</span>'}</td>`+
+      `<td class="num" style="color:${d>0?'var(--up)':d<0?'var(--down)':'var(--muted)'}">${d?(d>0?'▲ +':'▼ −')+fmtUSD(Math.abs(d)).slice(3):'·'}</td>`+
+      `<td class="num">${ret>0?esc(fmtUSD(ret)):'<span class="note">—</span>'}</td>`+
+      `<td class="num note">${(ret>0&&cur>0)?'+'+fmtUSD(ret-cur).slice(3):'—'}</td>`;
+    tr.title='Click to add this depot to the chart';
+    tr.addEventListener('click',()=>{ addChinaPin(li); render(); });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  const cb=$('#chinaBody'); cb.textContent='';
+  cb.insertAdjacentHTML('beforeend', noticeHTML(noticesFor(-1,di)));
+  cb.appendChild(t);
+  const nominal=S.cPins.map(p=>{ const r=chinaRow(p.li,bi); return r?{label:D.china.loc[p.li][0], color:SLOTS[p.slot], arr:expandPts(r[2]), pin:p}:null; }).filter(Boolean);
+  const idx=chinaPub.filter(i=>nominal.some(s=>s.arr[i]!==NP));
+  const series=nominal.map(s=>Object.assign({}, s, {arr:adjArr(s.arr), nominal:s.arr}));
+  $('#chinaNote').innerHTML = D.china.box[bi]+' purchase price'
+    + (S.real ? ' · <span class="chip real">'+esc(realLabel())+'</span>' : '');
+  lineChart($('#chinaChartWrap'), series, {idx, labels:true, corrs:[-1],
+            ghosts: S.real ? nominal.map(s=>({color:s.color, arr:s.arr})) : [],
+            axisNote: axisNote(),
+            aria:'China depot purchase price history'+(S.real?', adjusted for inflation':'')});
+  const lg=$('#chinaLegend'); lg.textContent='';
+  series.forEach(s=>{
+    const it=el('div','item');
+    it.innerHTML=`<i class="sw" style="background:${s.color}"></i><span>${esc(s.label)}</span>`;
+    if(series.length>1){ const b=el('button',null,'×'); b.type='button';
+      b.setAttribute('aria-label','Remove '+s.label);
+      b.addEventListener('click',()=>{ S.cPins=S.cPins.filter(p=>p!==s.pin); render(); }); it.appendChild(b); }
+    lg.appendChild(it);
+  });
+}
+
+/* ---------- shell ---------- */
+function renderVitals(){
+  const v=$('#vitals'); v.textContent='';
+  [['Weeks on File', D.pubWeeks],['Corridors', D.corr.length+' + China'],['Routes Tracked', D.routes.length.toLocaleString('en-US')],
+   ['Latest Quote', fmtDate(nd-1)]].forEach(([k,val])=>{
+    const d=el('div','vital'); d.innerHTML='<dt>'+esc(k)+'</dt><dd>'+esc(String(val))+'</dd>'; v.appendChild(d);
+  });
+  $('#fCount').textContent=D.emails;
+  $('#fGen').textContent='Data extracted '+D.gen;
+}
+function render(){
+  document.querySelectorAll('.sections button').forEach(b=>
+    b.setAttribute('aria-selected', String(b.dataset.section===S.section)));
+  ['route','corridor','china'].forEach(t=>{ $('#p-'+t).hidden = t!==S.section; });
+  document.querySelectorAll('#viewToggle button').forEach(b=>
+    b.setAttribute('aria-pressed', String(b.dataset.view===S.view)));
+  $('#v-lookup').hidden   = S.view!=='lookup';
+  $('#v-timeline').hidden = S.view!=='timeline';
+  $('#viewNote').textContent = S.view==='lookup'
+    ? 'One route, one week' : 'Pinned routes, week by week';
+  renderRail();
+  if(S.section==='route'){
+    if(S.view==='lookup') renderLookup();
+    else { S.pins.length||addPin(); renderTimeline(); }
+  } else if(S.section==='corridor') renderMatrix();
+  else renderChina();
+}
+document.querySelectorAll('.sections button').forEach(b=>
+  b.addEventListener('click',()=>{ S.section=b.dataset.section; render(); }));
+document.querySelectorAll('#viewToggle button').forEach(b=>
+  b.addEventListener('click',()=>{ S.view=b.dataset.view; render(); }));
+$('#addRoute').addEventListener('click',()=>{ addPin(); render(); });
+$('#tableToggle').addEventListener('click',()=>{ S.table=!S.table; render(); });
+let rt; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(render,180); });
+initState(); renderVitals(); render();
+</script>
