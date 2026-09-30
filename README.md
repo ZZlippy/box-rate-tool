@@ -45,6 +45,25 @@ rail belongs to whichever section is open, which is why it changes shape between
 Clicking a cell in the Corridor matrix loads that route and jumps to Route Rates → Lookup.
 That is the one deliberate link between sections.
 
+### Pinning
+
+A pinned series is one route *and* one box type — that is what a line on the chart is.
+Pin from either view: **+ Pin to Timeline** on the Lookup rate card (which stays put, so you
+can pin several in a row) or **+ Pin Current Route** on Timeline itself. Eight is the
+maximum; colours follow the route, so removing one never repaints the others.
+**Clear All Pins** empties the chart and leaves an empty state rather than silently
+re-pinning. China Depots works the same way, pinning by clicking a depot row.
+
+### Reading the Matrix
+
+The origin column and destination header row are frozen, so coordinates stay visible while
+you scroll either way. Hovering a cell traces its row and column; clicking a **row or
+column label** locks that trace until you click it again. Clicking a **cell** still opens
+the route — the lock lives on the labels precisely so the two never fight.
+
+The Corridor section also widens beyond the rest of the page: a grid gains from every
+pixel in a way a text card does not.
+
 ## Real Terms (Inflation Adjustment)
 
 The Timeline and China Depots charts can restate every week in one year's money:

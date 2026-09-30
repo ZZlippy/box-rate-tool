@@ -48,7 +48,9 @@ h1,h2,h3{margin:0;font-family:Archivo,system-ui,sans-serif;font-weight:700;lette
 button,select,input{font:inherit;color:inherit}
 .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
 .eyebrow{font-family:Archivo,sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+.wrap{width:100%;max-width:1760px;margin:0 auto;padding:0 22px}
+/* the matrix is a grid — it gains from every pixel in a way a text card does not */
+main.wrap.wide{max-width:2240px}
 
 /* masthead */
 .masthead{background:var(--surface);border-bottom:1px solid var(--rule)}
@@ -129,6 +131,11 @@ main{padding:22px 0 40px}
 .notice.void b{color:var(--up)}
 .notice.revised{background:var(--accent-soft)}
 .boxrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.quoteactions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;
+  padding-top:13px;border-top:1px solid var(--grid)}
+.quoteactions button{cursor:pointer}
+.quoteactions button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+.quoteactions button[disabled]{opacity:.5;cursor:not-allowed}
 .boxbtn{flex:1 1 90px;text-align:left;background:var(--surface-2);border:1px solid var(--ring);border-radius:6px;padding:8px 10px;cursor:pointer}
 .boxbtn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
 .boxbtn .t{font-family:Archivo,sans-serif;font-size:10.5px;letter-spacing:.1em;color:var(--muted);font-weight:600}
@@ -168,6 +175,21 @@ svg.chart{display:block;width:100%;height:auto;overflow:visible}
   font-variant-numeric:tabular-nums;cursor:pointer;white-space:nowrap}
 .matrix td.na{color:var(--muted);background:var(--surface-2);cursor:default}
 .matrix td:hover{outline:2px solid var(--accent);outline-offset:-2px}
+/* frozen headers: origins stay put across, destinations stay put down */
+.matrixscroll{overflow:auto;max-height:70vh}
+.matrix thead th{position:sticky;top:0;z-index:3;background:var(--surface);
+  box-shadow:0 3px 0 var(--surface)}
+.matrix th.rowh{position:sticky;left:0;z-index:2;background:var(--surface);
+  box-shadow:3px 0 0 var(--surface)}
+.matrix thead th.rowh{z-index:4}
+.matrix th[data-axis]{cursor:pointer}
+.matrix th[data-axis]:hover{color:var(--accent)}
+.matrix th[data-axis]:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+/* crosshair: hover traces, clicking a header locks it */
+.matrix .hv{outline:1.5px solid var(--ink-2);outline-offset:-1.5px}
+.matrix .lk{outline:2px solid var(--accent);outline-offset:-2px}
+.matrix th.lk{background:var(--accent-soft);color:var(--ink)}
+.matrix td.hv:hover,.matrix td.lk:hover{outline:2px solid var(--accent);outline-offset:-2px}
 .rampkey{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
 .rampkey .steps{display:flex}
 .rampkey .steps i{width:26px;height:10px;display:block}
@@ -207,7 +229,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <div class="wrap" id="rail"></div>
 </div>
 
-<main class="wrap">
+<main class="wrap" id="main">
   <section class="panel" id="p-route">
     <div class="viewbar">
       <span class="eyebrow">View</span>
@@ -241,6 +263,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
         <h2>Rate History <span id="realChip"></span></h2>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="chip" id="addRoute" type="button">+ Pin Current Route</button>
+          <button class="chip" id="clearPins" type="button">Clear All Pins</button>
           <button class="chip" id="tableToggle" type="button" aria-pressed="false">Table View</button>
         </div>
       </header>
@@ -257,8 +280,8 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <section class="panel" id="p-corridor" hidden>
     <div class="grid" style="grid-template-columns:minmax(0,2.2fr) minmax(0,1fr)">
       <div class="card">
-        <header><h2 id="matrixTitle">Corridor Matrix</h2><span class="note">On-hire down · Off-hire across · Click a cell to load it</span></header>
-        <div class="body"><div class="scroll" id="matrixBody"></div><div class="rampkey" id="rampKey"></div></div>
+        <header><h2 id="matrixTitle">Corridor Matrix</h2><span class="note">On-hire down · Off-hire across · Cell opens the route · Label locks the crosshair</span></header>
+        <div class="body"><div class="matrixscroll" id="matrixBody"></div><div class="rampkey" id="rampKey"></div></div>
       </div>
       <div class="card">
         <header><h2>Week-on-Week Movers</h2></header>
@@ -270,7 +293,12 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
   <section class="panel" id="p-china" hidden>
     <div class="grid two">
       <div class="card">
-        <header><h2>Purchase Price History</h2><span class="note" id="chinaNote"></span></header>
+        <header><h2>Purchase Price History</h2>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span class="note" id="chinaNote"></span>
+            <button class="chip" id="clearChinaPins" type="button">Clear All Pins</button>
+          </div>
+        </header>
         <div class="body"><div class="chartwrap" id="chinaChartWrap"></div><div class="legend" id="chinaLegend"></div></div>
       </div>
       <div class="card">
@@ -363,7 +391,8 @@ function stateLabel(v){ return v===CBC?'case by case': v===NO?'not offered': v==
 const S={section:'route', view:'lookup', c:0, o:null, d:null, b:null, g:'', di:nd-1, pins:[], usedSlots:new Set(),
          range:'all', table:false, cBox:null, cPins:[], cDi:nd-1,
          /* inflation adjustment — display only, never applied to Lookup */
-         real:false, rate:3.0, baseYear:null};
+         real:false, rate:3.0, baseYear:null,
+         mxRow:null, mxCol:null};
 
 function corrOrigins(c){ return [...byCorr[c].origins.keys()].sort((a,b)=>LN(a).localeCompare(LN(b))); }
 function corrDests(c,o){ const m=byCorr[c].origins.get(o); return m?[...m.keys()].sort((a,b)=>LN(a).localeCompare(LN(b))):[]; }
@@ -714,7 +743,11 @@ function renderLookup(){
      </div>
      ${q.stale?`<div class="stale"><b>Not in the ${esc(fmtDate(S.di))} list.</b> Showing the last published quote, from ${esc(fmtDate(q.at))}.</div>`:''}
      ${noticeHTML(noticesFor(S.c,q.at>=0?q.at:S.di))}
-     <div class="boxrow" id="boxrow"></div>`;
+     <div class="boxrow" id="boxrow"></div>
+     <div class="quoteactions">
+       <button class="chip" id="pinFromLookup" type="button"></button>
+       <span class="note" id="pinState"></span>
+     </div>`;
   const br=$('#boxrow');
   boxes(S.c,S.o,S.d,S.g).forEach(bi=>{
     const rr=RMAP.get(routeKey(S.c,S.o,S.d,bi,S.g)); if(!rr) return;
@@ -724,6 +757,24 @@ function renderLookup(){
     b.addEventListener('click',()=>{S.b=bi; render();});
     br.appendChild(b);
   });
+  /* pin this route to the Timeline chart, without leaving Lookup */
+  const pk=routeKey(S.c,S.o,S.d,S.b,S.g);
+  const pinned=S.pins.some(p=>p.key===pk), full=!pinned && S.pins.length>=8;
+  const pb=$('#pinFromLookup');
+  pb.textContent = pinned ? '\u2713 Pinned to Timeline' : '+ Pin to Timeline';
+  pb.setAttribute('aria-pressed', String(pinned));
+  pb.disabled = full;
+  pb.title = pinned ? 'Remove this route from the Timeline chart'
+           : full ? 'Eight pinned routes is the maximum — clear one first'
+           : 'Add this route to the Timeline chart';
+  pb.addEventListener('click',()=>{
+    if(pinned) S.pins=S.pins.filter(p=>p.key!==pk); else addPin();
+    render();
+  });
+  $('#pinState').textContent = S.pins.length
+    ? S.pins.length+(S.pins.length===1?' route':' routes')+' pinned'
+    : 'Nothing pinned yet';
+
   /* sparkline */
   const cutoff=TS[S.di]-260*864e5;
   let vis=pub.filter(i=>i<=S.di && TS[i]>=cutoff);
@@ -777,6 +828,15 @@ function visibleIdx(series){
   return idx;
 }
 function renderTimeline(){
+  $('#clearPins').hidden = !S.pins.length;
+  if(!S.pins.length){
+    $('#mainChartWrap').textContent='';
+    $('#mainChartWrap').appendChild(el('p','note',
+      'No routes pinned. Pin one from the Lookup view, or use + Pin Current Route.'));
+    $('#legend').textContent=''; $('#noticeKey').textContent='';
+    $('#realChip').textContent=''; $('#tableView').hidden=true;
+    return;
+  }
   const nominal=pinSeries(), idx=visibleIdx(nominal);
   const series=nominal.map(s=>Object.assign({}, s, {arr:adjArr(s.arr), nominal:s.arr}));
   lineChart($('#mainChartWrap'), series, {idx, labels:true, corrs:S.pins.map(p=>p.c),
@@ -839,23 +899,59 @@ function renderMatrix(){
   const bin=v=>{ let b=1; for(const x of bounds){ if(v>x) b++; } return Math.min(b,7); };
   const t=el('table','matrix');
   let head='<thead><tr><th class="rowh"></th>';
-  dests.forEach(d=>{ head+='<th><div style="writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap">'+esc(LN(d))+'</div></th>'; });
+  dests.forEach(d=>{ head+='<th data-axis="col" data-idx="'+d+'" tabindex="0" '+
+    'title="Click to lock this column"><div style="writing-mode:vertical-rl;'+
+    'transform:rotate(180deg);white-space:nowrap">'+esc(LN(d))+'</div></th>'; });
   t.innerHTML=head+'</tr></thead>';
   const tb=el('tbody');
   origins.forEach((o,ri)=>{
-    const tr=el('tr'); tr.appendChild(el('th','rowh',esc(LN(o))));
+    const tr=el('tr');
+    const rh=el('th','rowh',esc(LN(o)));
+    rh.dataset.axis='row'; rh.dataset.idx=o; rh.tabIndex=0;
+    rh.title='Click to lock this row';
+    tr.appendChild(rh);
     dests.forEach((d,ci)=>{
       const c=cells[ri][ci];
-      if(!c || c.v===NP){ const td=el('td','na','·'); td.title='no quote on file'; tr.appendChild(td); return; }
-      if(!(c.v>0)){ const td=el('td','na',c.v===CBC?'c/c':'—'); td.title=stateLabel(c.v); tr.appendChild(td); return; }
+      const tag=(td)=>{ td.dataset.r=o; td.dataset.c=d; tr.appendChild(td); };
+      if(!c || c.v===NP){ const td=el('td','na','·'); td.title='no quote on file'; tag(td); return; }
+      if(!(c.v>0)){ const td=el('td','na',c.v===CBC?'c/c':'—'); td.title=stateLabel(c.v); tag(td); return; }
       const td=el('td','q'+bin(c.v), fmtUSD(c.v).replace('US$',''));
       td.title=LN(o)+' → '+LN(d)+' · '+fmtUSD(c.v)+(c.stale?' (from '+fmtDate(c.at)+')':'');
       td.addEventListener('click',()=>{ S.o=o; S.d=d; setDest(d); S.section='route'; S.view='lookup'; render(); });
-      tr.appendChild(td);
+      tag(td);
     });
     tb.appendChild(tr);
   });
   t.appendChild(tb);
+
+  /* crosshair — hover traces the O/D pair, clicking a label locks it */
+  let hovR=null, hovC=null;
+  const paintCross=()=>{
+    t.querySelectorAll('.hv,.lk').forEach(e=>e.classList.remove('hv','lk'));
+    const mark=(sel,cls)=>t.querySelectorAll(sel).forEach(e=>e.classList.add(cls));
+    if(S.mxRow!=null){ mark('[data-r="'+S.mxRow+'"]','lk'); mark('th[data-axis="row"][data-idx="'+S.mxRow+'"]','lk'); }
+    if(S.mxCol!=null){ mark('[data-c="'+S.mxCol+'"]','lk'); mark('th[data-axis="col"][data-idx="'+S.mxCol+'"]','lk'); }
+    if(hovR!=null && hovR!==S.mxRow) mark('[data-r="'+hovR+'"]:not(.lk)','hv');
+    if(hovC!=null && hovC!==S.mxCol) mark('[data-c="'+hovC+'"]:not(.lk)','hv');
+  };
+  t.addEventListener('mouseover',e=>{
+    const c=e.target.closest('td,th'); if(!c) return;
+    hovR = c.dataset.r!=null ? +c.dataset.r : (c.dataset.axis==='row' ? +c.dataset.idx : null);
+    hovC = c.dataset.c!=null ? +c.dataset.c : (c.dataset.axis==='col' ? +c.dataset.idx : null);
+    paintCross();
+  });
+  t.addEventListener('mouseleave',()=>{ hovR=hovC=null; paintCross(); });
+  t.querySelectorAll('th[data-axis]').forEach(th=>{
+    const ax=th.dataset.axis, i=+th.dataset.idx;
+    const toggle=()=>{
+      if(ax==='row') S.mxRow = (S.mxRow===i ? null : i);
+      else           S.mxCol = (S.mxCol===i ? null : i);
+      paintCross();
+    };
+    th.addEventListener('click',toggle);
+    th.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+  });
+  paintCross();
   const mn=noticesFor(S.c,S.di);
   if(mn.length) body.insertAdjacentHTML('beforeend', noticeHTML(mn).replace(/margin-top:10px/g,''));
   body.appendChild(t);
@@ -911,6 +1007,14 @@ function renderChina(){
   const cb=$('#chinaBody'); cb.textContent='';
   cb.insertAdjacentHTML('beforeend', noticeHTML(noticesFor(-1,di)));
   cb.appendChild(t);
+  $('#clearChinaPins').hidden = !S.cPins.length;
+  if(!S.cPins.length){
+    $('#chinaChartWrap').textContent='';
+    $('#chinaChartWrap').appendChild(el('p','note','No depots pinned. Click a depot row to add one.'));
+    $('#chinaLegend').textContent='';
+    $('#chinaNote').textContent='';
+    return;
+  }
   const nominal=S.cPins.map(p=>{ const r=chinaRow(p.li,bi); return r?{label:D.china.loc[p.li][0], color:SLOTS[p.slot], arr:expandPts(r[2]), pin:p}:null; }).filter(Boolean);
   const idx=chinaPub.filter(i=>nominal.some(s=>s.arr[i]!==NP));
   const series=nominal.map(s=>Object.assign({}, s, {arr:adjArr(s.arr), nominal:s.arr}));
@@ -945,6 +1049,7 @@ function render(){
   document.querySelectorAll('.sections button').forEach(b=>
     b.setAttribute('aria-selected', String(b.dataset.section===S.section)));
   ['route','corridor','china'].forEach(t=>{ $('#p-'+t).hidden = t!==S.section; });
+  $('#main').classList.toggle('wide', S.section==='corridor');
   document.querySelectorAll('#viewToggle button').forEach(b=>
     b.setAttribute('aria-pressed', String(b.dataset.view===S.view)));
   $('#v-lookup').hidden   = S.view!=='lookup';
@@ -954,7 +1059,7 @@ function render(){
   renderRail();
   if(S.section==='route'){
     if(S.view==='lookup') renderLookup();
-    else { S.pins.length||addPin(); renderTimeline(); }
+    else renderTimeline();
   } else if(S.section==='corridor') renderMatrix();
   else renderChina();
 }
@@ -963,6 +1068,8 @@ document.querySelectorAll('.sections button').forEach(b=>
 document.querySelectorAll('#viewToggle button').forEach(b=>
   b.addEventListener('click',()=>{ S.view=b.dataset.view; render(); }));
 $('#addRoute').addEventListener('click',()=>{ addPin(); render(); });
+$('#clearPins').addEventListener('click',()=>{ S.pins=[]; render(); });
+$('#clearChinaPins').addEventListener('click',()=>{ S.cPins=[]; render(); });
 $('#tableToggle').addEventListener('click',()=>{ S.table=!S.table; render(); });
 let rt; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(render,180); });
 initState(); renderVitals(); render();
