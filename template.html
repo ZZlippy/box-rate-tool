@@ -196,6 +196,10 @@ svg.chart{display:block;width:100%;height:auto;overflow:visible}
 .movers li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--grid);font-size:12.5px}
 .movers{list-style:none;margin:0;padding:0}
 .movers li:last-child{border-bottom:0}
+.movers.scrollbox{max-height:52vh;overflow-y:auto}
+.moversfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:11px;padding-top:10px;border-top:1px solid var(--grid);flex-wrap:wrap}
+.moversfoot button{cursor:pointer;white-space:nowrap}
 .movers .rt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .movers .dl{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
 
@@ -392,7 +396,7 @@ const S={section:'route', view:'lookup', c:0, o:null, d:null, b:null, g:'', di:n
          range:'all', table:false, cBox:null, cPins:[], cDi:nd-1,
          /* inflation adjustment — display only, never applied to Lookup */
          real:false, rate:3.0, baseYear:null,
-         mxRow:null, mxCol:null};
+         mxRow:null, mxCol:null, moversAll:false};
 
 function corrOrigins(c){ return [...byCorr[c].origins.keys()].sort((a,b)=>LN(a).localeCompare(LN(b))); }
 function corrDests(c,o){ const m=byCorr[c].origins.get(o); return m?[...m.keys()].sort((a,b)=>LN(a).localeCompare(LN(b))):[]; }
@@ -970,14 +974,30 @@ function renderMatrix(){
   const mb=$('#moversBody'); mb.textContent='';
   if(!mv.length){ mb.appendChild(el('p','note', pi<0?'No earlier week to compare with.':'No changes against '+fmtDate(pi)+'.')); return; }
   mv.sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));
-  mb.appendChild(el('p','note','Against '+fmtDate(pi)+' · '+mv.length+' rates moved'));
-  const ul=el('ul','movers');
-  mv.slice(0,12).forEach(m=>{
+  /* the list ranks by size, so a top-12 can lean all one way while the corridor
+     as a whole does not — state the split so it cannot be read as the whole story */
+  const up=mv.filter(m=>m.d>0).length, down=mv.length-up;
+  mb.appendChild(el('p','note','Against '+fmtDate(pi)+' · '+mv.length+' moved · '+
+    up+' up, '+down+' down'));
+  const CAP=12, shown=S.moversAll?mv:mv.slice(0,CAP);
+  const ul=el('ul','movers'+(S.moversAll?' scrollbox':''));
+  shown.forEach(m=>{
     const cls=m.d>0?'up':'down';
     ul.appendChild(el('li',null,`<span class="rt">${esc(m.label)}</span>`+
       `<span class="dl" style="color:var(--${cls})">${m.d>0?'▲ +':'▼ −'}${fmtUSD(Math.abs(m.d)).slice(3)} <span class="note">(${esc(fmtUSD(m.cur))})</span></span>`));
   });
   mb.appendChild(ul);
+  if(mv.length>CAP){
+    const foot=el('div','moversfoot');
+    foot.appendChild(el('span','note', S.moversAll
+      ? 'Showing all '+mv.length+', largest move first'
+      : 'Showing the '+CAP+' largest of '+mv.length));
+    const tb=el('button','chip', S.moversAll ? 'Show Top '+CAP : 'Show All');
+    tb.type='button';
+    tb.addEventListener('click',()=>{ S.moversAll=!S.moversAll; render(); });
+    foot.appendChild(tb);
+    mb.appendChild(foot);
+  }
 }
 
 /* ---------- china ---------- */
