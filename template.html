@@ -196,7 +196,9 @@ svg.chart{display:block;width:100%;height:auto;overflow:visible}
 .movers li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid var(--grid);font-size:12.5px}
 .movers{list-style:none;margin:0;padding:0}
 .movers li:last-child{border-bottom:0}
-.movers.scrollbox{max-height:52vh;overflow-y:auto}
+.moverscard{display:flex;flex-direction:column}
+.moverscard .body{display:flex;flex-direction:column;flex:1;min-height:0}
+.movers{flex:1 1 0;min-height:0;overflow-y:auto}
 .moversfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;
   margin-top:11px;padding-top:10px;border-top:1px solid var(--grid);flex-wrap:wrap}
 .moversfoot button{cursor:pointer;white-space:nowrap}
@@ -287,7 +289,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-bet
         <header><h2 id="matrixTitle">Corridor Matrix</h2><span class="note">On-hire down · Off-hire across · Cell opens the route · Label locks the crosshair</span></header>
         <div class="body"><div class="matrixscroll" id="matrixBody"></div><div class="rampkey" id="rampKey"></div></div>
       </div>
-      <div class="card">
+      <div class="card moverscard">
         <header><h2>Week-on-Week Movers</h2></header>
         <div class="body" id="moversBody"></div>
       </div>
@@ -987,6 +989,16 @@ function renderMatrix(){
       `<span class="dl" style="color:var(--${cls})">${m.d>0?'▲ +':'▼ −'}${fmtUSD(Math.abs(m.d)).slice(3)} <span class="note">(${esc(fmtUSD(m.cur))})</span></span>`));
   });
   mb.appendChild(ul);
+  /* cap the list to whatever height the matrix card has, so the movers card ends
+     flush with it instead of stretching the row and pushing the page down */
+  requestAnimationFrame(()=>{
+    const card=document.querySelector('.moverscard');
+    const mtx=document.querySelector('#p-corridor .card:not(.moverscard)');
+    if(!card||!mtx||!ul.isConnected) return;
+    ul.style.maxHeight='';
+    const chrome=card.getBoundingClientRect().height-ul.getBoundingClientRect().height;
+    ul.style.maxHeight=Math.max(200, mtx.getBoundingClientRect().height-chrome)+'px';
+  });
   if(mv.length>CAP){
     const foot=el('div','moversfoot');
     foot.appendChild(el('span','note', S.moversAll
